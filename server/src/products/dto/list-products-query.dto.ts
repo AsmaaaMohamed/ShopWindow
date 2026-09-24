@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsGreaterThanOrEqualTo } from '../validators/price-range.validator';
  
 const MAX_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE = 20;
@@ -17,4 +18,29 @@ export class ListProductsQueryDto {
   @Min(1, { message: 'limit must be at least 1' })
   @Max(MAX_PAGE_SIZE, { message: `limit cannot exceed ${MAX_PAGE_SIZE}` })
   limit: number = DEFAULT_PAGE_SIZE;
+
+   // Category slug, e.g. ?category=electronics
+  @IsOptional()
+  @IsString({ message: 'category must be a string' })
+  category?: string;
+ 
+  // Free-text search over product name and description.
+  @IsOptional()
+  @IsString({ message: 'q must be a string' })
+  q?: string;
+ 
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'minPrice must be a number' })
+  @Min(0, { message: 'minPrice cannot be negative' })
+  minPrice?: number;
+ 
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'maxPrice must be a number' })
+  @Min(0, { message: 'maxPrice cannot be negative' })
+  @IsGreaterThanOrEqualTo('minPrice', {
+    message: 'maxPrice must be greater than or equal to minPrice',
+  })
+  maxPrice?: number;
 }
