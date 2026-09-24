@@ -20,7 +20,7 @@ export default tseslint.config(
         ...globals.jest,
       },
 
-      sourceType: 'commonjs',
+      sourceType: 'module',
 
       parserOptions: {
         projectService: true,

@@ -17,6 +17,10 @@ enum Role {
   ADMIN
   VIEWER
 }
+enum ProductStatus {
+  ACTIVE
+  ARCHIVED
+}
 
 model User {
   id        String   @id @default(uuid())
@@ -26,4 +30,34 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+model Category{
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+
+  @@map("categories")
+}
+model Product{
+  id          String   @id @default(uuid())
+  name        String   @unique
+  sku         String        @unique
+  slug        String        @unique
+  categoryId  String?
+  description String
+  price       Decimal
+  currency    String
+  status      ProductStatus @default(ACTIVE)
+  stock       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    Category? @relation(fields:[categoryId], references: [id])
+
+  @@index([categoryId, status])
+  @@index([status, updatedAt])
+
+  @@map("products")
 }
