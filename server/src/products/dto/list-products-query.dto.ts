@@ -1,9 +1,17 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 import { IsGreaterThanOrEqualTo } from '../validators/price-range.validator';
  
+export enum ProductSort {
+  PRICE_ASC = 'price_asc',
+  PRICE_DESC = 'price_desc',
+  NEWEST = 'newest',
+  OLDEST = 'oldest',
+}
+
 const MAX_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE = 20;
+
  
 export class ListProductsQueryDto {
   @IsOptional()
@@ -43,4 +51,10 @@ export class ListProductsQueryDto {
     message: 'maxPrice must be greater than or equal to minPrice',
   })
   maxPrice?: number;
+
+  @IsOptional()
+  @IsEnum(ProductSort, {
+    message: 'sort must be a valid sorting option',
+  })
+  sort?: ProductSort;
 }
