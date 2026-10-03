@@ -28,8 +28,8 @@
 
 
 import { faker } from '@faker-js/faker';
-import { PrismaClient } from '../src/generated/prisma/client';
-import {ProductStatus} from '../src/generated/prisma/enums';
+import { PrismaClient } from '../src/generated/prisma/client.js';
+import {ProductStatus} from '../src/generated/prisma/enums.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });

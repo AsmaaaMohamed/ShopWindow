@@ -1,6 +1,7 @@
 // src/redis/redis.service.ts
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import Redis from 'ioredis';
+import {Redis} from 'ioredis';
+
 
 @Injectable()
 export class RedisService extends Redis implements OnModuleInit, OnModuleDestroy {
@@ -24,12 +25,12 @@ export class RedisService extends Redis implements OnModuleInit, OnModuleDestroy
     try {
       await this.connect();
     } catch (err) {
-        console.log(err);
-      this.logger.warn('Redis not available at startup');
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Redis not available at startup: ${message}`);
     }
   }
 
-  onModuleDestroy() {
-    this.disconnect();
+  async onModuleDestroy() {
+    await this.quit();
   }
 }

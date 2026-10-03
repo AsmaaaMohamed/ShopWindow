@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import { IsGreaterThanOrEqualTo } from '../validators/price-range.validator';
+import { IsGreaterThanOrEqualTo } from '../validators/price-range.validator.js';
  
 export enum ProductSort {
   PRICE_ASC = 'price_asc',
@@ -10,7 +10,7 @@ export enum ProductSort {
 }
 
 const MAX_PAGE_SIZE = 100;
-const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 20;
 
  
 export class ListProductsQueryDto {

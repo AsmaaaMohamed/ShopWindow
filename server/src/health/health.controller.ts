@@ -1,8 +1,8 @@
 // src/health/health.controller.ts
 import { Controller, Get } from '@nestjs/common';
 import { HealthCheckService, HealthCheck, PrismaHealthIndicator } from '@nestjs/terminus';
-import { RedisHealthIndicator } from './redis.health';
-import { PrismaService } from '../prisma/prisma.service';
+import { RedisHealthIndicator } from './redis.health.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Controller('health')
 export class HealthController {

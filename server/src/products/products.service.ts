@@ -1,12 +1,18 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { ListProductsQueryDto, ProductSort } from "./dto/list-products-query.dto";
-import { PrismaService } from "../prisma/prisma.service";
-import { ProductStatus } from "../generated/prisma/enums";
-import { Prisma } from "../generated/prisma/browser";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ListProductsQueryDto, ProductSort } from "./dto/list-products-query.dto.js";
+import { PrismaService } from "../prisma/prisma.service.js";
+import { ProductStatus } from "../generated/prisma/enums.js";
+import { Prisma } from "../generated/prisma/browser.js";
+import type { CachePort } from "../cache/cache.port.js";
+import type{ Product } from '../generated/prisma/client.js';
+import { CacheKeys } from "../cache/cache-keys.js";
 
 @Injectable()
 export class ProductsService {
-    constructor(private prisma: PrismaService) {}
+    private readonly PRODUCT_DETAIL_TTL_SECONDS = 600;
+    constructor(
+        private prisma: PrismaService,
+        @Inject("CACHE_SERVICE") private readonly cache: CachePort) {}
     /** 
      * Get Products
     */
@@ -63,7 +69,19 @@ export class ProductsService {
         };
    }
    public async getProductByIdOrSlug(idOrSlug: string) {
-       const isId = this.isValidUuid(idOrSlug);
+                
+        const isId = this.isValidUuid(idOrSlug);
+        const cacheKey = isId
+            ? CacheKeys.product(idOrSlug)
+            : CacheKeys.productSlug(idOrSlug);
+        // 1) check the cache first
+        const cached = await this.cache.get<Product>(cacheKey);
+        if (cached) {
+            console.log('cache hit' , cached);
+            return cached; // cache hit: Prisma مش بيتنادى خالص
+        }
+        console.log('cache miss' ,cached);
+        // 2) cache miss -> PostgreSQL
        const where = {
            ...(isId ? { id: idOrSlug } : { slug: idOrSlug }),
            status: ProductStatus.ACTIVE,
@@ -72,7 +90,10 @@ export class ProductsService {
        if (!product) {
            throw new NotFoundException('Product not found');
        }
-       return product;
+           // 3) خزّنه للمرة الجاية
+        await this.cache.set(cacheKey, product, this.PRODUCT_DETAIL_TTL_SECONDS);
+        console.log('POSTGRES PRODUCT:', product);
+        return product;
    }
    private getOrderBy(sort?: ProductSort) {
         switch (sort) {
