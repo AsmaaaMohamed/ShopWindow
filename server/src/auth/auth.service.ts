@@ -96,4 +96,13 @@ export class AuthService {
       refreshToken,
     };
   }
+  async logout(userId: string) {
+    await this.cache.delete(
+      CacheKeys.refreshToken(userId),
+    );
+
+    return {
+      message: 'Logged out successfully',
+    };
+  }
 }
